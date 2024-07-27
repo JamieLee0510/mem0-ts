@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="[docs/images/banner.png](https://github.com/mem0ai/mem0/blob/main/docs/images/banner.png)" width="800px" alt="Mem0 Logo">
+  <img src="https://github.com/mem0ai/mem0/blob/main/docs/images/banner.png" width="800px" alt="Mem0 Logo">
 </p>
 
 <p align="center">
