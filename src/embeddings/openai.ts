@@ -1,16 +1,13 @@
 import OpenAI from "openai";
-import { config } from "dotenv";
-
-config();
 
 export class OpenAIEmbedding {
     client: OpenAI;
     model: string;
     dims: number;
-    constructor(model: string = "text-embedding-3-small") {
-        this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        this.model = model;
-        this.dims = 1536;
+    constructor(config: { apiKey: string; model?: string; dims?: number }) {
+        this.client = new OpenAI({ apiKey: config.apiKey });
+        this.model = config.model || "text-embedding-3-small";
+        this.dims = config.dims || 1536;
     }
 
     async embed(text: string) {
