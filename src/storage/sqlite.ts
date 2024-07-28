@@ -1,7 +1,7 @@
 import sqlite3 from "sqlite3";
 import { v4 as uuidv4 } from "uuid";
 
-interface HistoryRecord {
+export interface HistoryRecord {
     id: string;
     memoryId: string;
     preValue: string;
