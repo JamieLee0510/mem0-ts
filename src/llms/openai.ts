@@ -1,17 +1,14 @@
 import OpenAI from "openai";
 import { Message } from "./type";
-import { config } from "dotenv";
 import {
     ChatCompletionCreateParamsStreaming,
     ChatCompletionMessageParam,
 } from "openai/resources";
 
-config();
-
 export class OpenAILLM {
     client: OpenAI;
-    constructor() {
-        this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    constructor(config: { apiKey: string }) {
+        this.client = new OpenAI(config);
     }
 
     _parseResponse(response: any, tools?: any[]) {

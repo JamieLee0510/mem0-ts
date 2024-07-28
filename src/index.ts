@@ -13,44 +13,7 @@ import {
     UPDATE_MEMORY_TOOL,
 } from "./utils/tools";
 import { generateCurrDate } from "./utils/helpter";
-
-type MemoryConfig = {
-    historyDbPath: string;
-    llm: {
-        provider: "openai";
-        config: any;
-    };
-    collectionName: string;
-    vectorStore: {
-        provider: "qdrant";
-        config: {
-            host?: string;
-            port?: number;
-            url?: string;
-            apiKey?: string;
-        };
-    };
-    embedder: {
-        provider: "openai";
-    };
-};
-const defaultMemoryConfig: MemoryConfig = {
-    historyDbPath: "",
-    llm: {
-        provider: "openai",
-        config: {},
-    },
-    collectionName: "demo_collection",
-    vectorStore: {
-        provider: "qdrant",
-        config: {
-            url: "http://127.0.0.1:6333",
-        },
-    },
-    embedder: {
-        provider: "openai",
-    },
-};
+import { defaultMemoryConfig, MemoryConfig } from "./utils/config";
 
 class Memory {
     config: MemoryConfig;
@@ -74,9 +37,13 @@ class Memory {
     }
 
     async initialize() {
-        this.llm = await LLMFactory.create(this.config.llm.provider);
+        this.llm = await LLMFactory.create(
+            this.config.llm.provider,
+            this.config.llm.config,
+        );
         this.embeddingModel = await EmbeddingFactory.create(
             this.config.embedder.provider,
+            this.config.embedder.config,
         );
         const response = await this.vectorStore.getCollections();
         const collectionNames = response.collections.map(
@@ -173,12 +140,12 @@ class Memory {
             }
         }
     }
-    get() {}
-    getAll() {}
-    search() {}
-    update() {}
-    delete() {}
-    deleteAll() {}
+    async get() {}
+    async getAll() {}
+    async search() {}
+    async update() {}
+    async delete() {}
+    async deleteAll() {}
     history() {}
 
     private async _createMemoryTool({ data }: { data: string }) {
