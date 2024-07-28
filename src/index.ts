@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { OpenAIEmbedding } from "./embeddings/openai";
 import OpenAILLM from "./llms/openai";
 import { generateMemoryDeducationPrompt } from "./llms/prompt";
-import { SQLiteManager } from "./storage/sqlite";
+import { SQLiteManager, HistoryRecord } from "./storage/sqlite";
 import { EmbeddingFactory, LLMFactory } from "./utils/factory";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { getUpdateMemoryMessages } from "./utils/memory";
@@ -123,7 +123,6 @@ class Memory {
             toolChoice: "auto",
         });
         const toolCalls = response["tool_calls"];
-        console.log("---toolcalls:", toolCalls);
         if (toolCalls) {
             const availableFuncs = {
                 add_memory: this._createMemoryTool.bind(this),
@@ -131,7 +130,6 @@ class Memory {
                 delete_memory: this._deleteMemoryTool.bind(this),
             } as { [key: string]: (...args: any[]) => Promise<any> };
             for (const toolCall of toolCalls) {
-                console.log(`toolCall: ${toolCall}`);
                 const funcName = toolCall["name"];
                 const funcToCall = availableFuncs[funcName];
                 const funcParams = toolCall["arguments"];
@@ -140,13 +138,114 @@ class Memory {
             }
         }
     }
-    async get() {}
-    async getAll() {}
-    async search() {}
-    async update() {}
-    async delete() {}
-    async deleteAll() {}
-    history() {}
+
+    /**
+     * Retrieve a memory by ID.
+     * @param memoryId
+     */
+    async get(memoryId: string) {
+        const memory = await this.vectorStore.retrieve(this.collectionName, {
+            ids: [memoryId],
+        });
+        if (!memory.length) return null;
+        return {
+            id: memory[0].id,
+            metaData: memory[0].payload,
+            text: memory[0].payload!["data"],
+        };
+    }
+    async getAll(userId = "", agentId = "", runId = "", limit = 100) {
+        const filters = {} as { [key: string]: any };
+        if (userId) {
+            filters["user_id"] = userId;
+        }
+        if (agentId) {
+            filters["agent_id"] = agentId;
+        }
+        if (runId) {
+            filters["run_id"] = runId;
+        }
+        const memories = await this.vectorStore.scroll(this.collectionName, {
+            filter: filters,
+            limit,
+        });
+        return memories.points.map((mem) => ({
+            id: mem.id,
+            metaData: mem.payload,
+            text: mem.payload!["data"],
+        }));
+    }
+    async search(
+        query: string,
+        userId = "",
+        agentId = "",
+        runId = "",
+        limit = 100,
+        filter?: { [key: string]: any },
+    ) {
+        let filters = {} as { [key: string]: any };
+
+        if (filter) {
+            filters = { ...filter };
+        }
+        if (userId) {
+            filters["user_id"] = userId;
+        }
+        if (agentId) {
+            filters["agent_id"] = agentId;
+        }
+        if (runId) {
+            filters["run_id"] = runId;
+        }
+        const embeddings = await this.embeddingModel.embed(query);
+        const memories = await this.vectorStore.search(this.collectionName, {
+            vector: embeddings,
+            filter: filters,
+            limit,
+        });
+
+        return memories.map((mem) => ({
+            id: mem.id,
+            metaData: mem.payload,
+            score: mem.score,
+            text: mem.payload!["data"],
+        }));
+    }
+    async update(memoryId: string, data: string) {
+        await this._updateMemoryTool({ memoryId, data });
+    }
+    async delete(memoryId: string) {
+        await this._deleteMemoryTool({ memoryId });
+    }
+    async deleteAll(userId = "", agentId = "", runId = "") {
+        const filters = {} as { [key: string]: string };
+        if (userId) {
+            filters["user_id"] = userId;
+        }
+        if (agentId) {
+            filters["agent_id"] = agentId;
+        }
+        if (runId) {
+            filters["run_id"] = runId;
+        }
+        if (!Object.keys(filters).length) {
+            throw new Error(
+                "At least one filter is required to delete all memories. If you want to delete all memories, use the `reset()` method.",
+            );
+        }
+        const memories = await this.vectorStore.scroll(this.collectionName, {
+            filter: filters,
+        });
+        await Promise.all(
+            memories.points.map((memory) =>
+                this._deleteMemoryTool({ memoryId: memory.id as string }),
+            ),
+        );
+    }
+    async history(memoryId: string): Promise<HistoryRecord[]> {
+        const histories = await this.db.getHistory(memoryId);
+        return histories;
+    }
 
     private async _createMemoryTool({ data }: { data: string }) {
         const embeddings = await this.embeddingModel.embed(data);
@@ -204,6 +303,9 @@ class Memory {
                 ids: [memoryId],
             },
         );
+        if (existingMemory.length === 0) {
+            throw new Error(`Memory with id ${memoryId} not found.`);
+        }
         const preValue = existingMemory[0].payload!["data"] as string;
         await this.vectorStore.delete(this.collectionName, {
             points: [existingMemory[0].id],
