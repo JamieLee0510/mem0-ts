@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { v4 as uuidv4 } from "uuid";
 
 import { OpenAIEmbedding } from "./embeddings/openai";
@@ -14,11 +15,12 @@ import {
 } from "./utils/tools";
 import { generateCurrDate } from "./utils/helpter";
 import { defaultMemoryConfig, MemoryConfig } from "./utils/config";
+import { HuggingFaceEmbedding } from "./embeddings/huggingface";
 
 class Memory {
     config: MemoryConfig;
-    llm!: OpenAILLM;
-    embeddingModel!: OpenAIEmbedding; // TODO: base EmbedClass
+    llm!: OpenAILLM; // TODO: base LLM class
+    embeddingModel!: any; // TODO: base EmbedClass
     vectorStore: QdrantClient;
     collectionName: string;
     db: SQLiteManager;
@@ -41,10 +43,11 @@ class Memory {
             this.config.llm.provider,
             this.config.llm.config,
         );
-        this.embeddingModel = await EmbeddingFactory.create(
-            this.config.embedder.provider,
-            this.config.embedder.config,
-        );
+        // this.embeddingModel = await EmbeddingFactory.create(
+        //     this.config.embedder.provider,
+        //     this.config.embedder.config,
+        // );
+        this.embeddingModel = new HuggingFaceEmbedding();
         const response = await this.vectorStore.getCollections();
         const collectionNames = response.collections.map(
             (collection) => collection.name,
