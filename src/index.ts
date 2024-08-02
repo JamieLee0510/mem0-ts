@@ -44,11 +44,10 @@ class Memory {
             this.config.llm.provider,
             this.config.llm.config,
         );
-        // this.embeddingModel = await EmbeddingFactory.create(
-        //     this.config.embedder.provider,
-        //     this.config.embedder.config,
-        // );
-        this.embeddingModel = new HuggingFaceEmbedding();
+        this.embeddingModel = await EmbeddingFactory.create(
+            this.config.embedder.provider,
+            this.config.embedder.config,
+        );
         const response = await this.vectorStore.getCollections();
         const collectionNames = response.collections.map(
             (collection) => collection.name,
