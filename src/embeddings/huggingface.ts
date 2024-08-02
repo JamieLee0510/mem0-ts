@@ -1,11 +1,13 @@
 import { pipeline } from "@xenova/transformers";
+import { BaseEmbedding } from "./base-embedding-model";
 
-export class HuggingFaceEmbedding {
+export class HuggingFaceEmbedding extends BaseEmbedding {
     private model: any;
     private modelPromise: Promise<any>;
     public dims!: number;
 
     constructor(modelName: string = "Xenova/all-MiniLM-L6-v2") {
+        super();
         this.modelPromise = this.initializeModel(modelName);
     }
 

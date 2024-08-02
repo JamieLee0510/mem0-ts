@@ -16,11 +16,12 @@ import {
 import { generateCurrDate } from "./utils/helpter";
 import { defaultMemoryConfig, MemoryConfig } from "./utils/config";
 import { HuggingFaceEmbedding } from "./embeddings/huggingface";
+import { BaseEmbedding } from "./embeddings/base-embedding-model";
 
 class Memory {
     config: MemoryConfig;
     llm!: OpenAILLM; // TODO: base LLM class
-    embeddingModel!: any; // TODO: base EmbedClass
+    embeddingModel!: BaseEmbedding; // TODO: base EmbedClass
     vectorStore: QdrantClient;
     collectionName: string;
     db: SQLiteManager;
