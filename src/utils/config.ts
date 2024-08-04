@@ -17,7 +17,7 @@ export type MemoryConfig = {
         };
     };
     embedder: {
-        provider: "openai";
+        provider: "openai" | "ollama" | "huggingface";
         config: any;
     };
 };
