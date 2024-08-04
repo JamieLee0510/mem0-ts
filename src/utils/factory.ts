@@ -3,10 +3,16 @@ export class LLMFactory {
         if (provider == "openai") {
             const { OpenAILLM } = await import("../llms/openai");
             return new OpenAILLM(config);
+        } else if (provider == "ollama") {
+            const { OllamaLLM } = await import("../llms/ollama");
+            const ollamaLlm = new OllamaLLM(config.model);
+            await ollamaLlm.initializeModel();
+            return ollamaLlm;
+        } else {
+            // default
+            const { OpenAILLM } = await import("../llms/openai");
+            return new OpenAILLM(config);
         }
-        // default
-        const { OpenAILLM } = await import("../llms/openai");
-        return new OpenAILLM(config);
     }
 }
 
