@@ -32,7 +32,7 @@ npm install mem0ai-ts
 ```
 
 > [!NOTE]
-> The Mem0-TS currently (20240727) is only supported OpenAI LLM and embeddings.
+> The Mem0-TS currently (20240727) is only supported OpenAI LLM; however, embedding model could use huggingface and ollama.
 
 Set OpenAI key:
 
