@@ -4,10 +4,12 @@ import {
     ChatCompletionCreateParamsStreaming,
     ChatCompletionMessageParam,
 } from "openai/resources";
+import { BaseLLM } from "./base-llm";
 
-export class OpenAILLM {
+export class OpenAILLM extends BaseLLM {
     client: OpenAI;
     constructor(config: { apiKey: string }) {
+        super();
         this.client = new OpenAI(config);
     }
 

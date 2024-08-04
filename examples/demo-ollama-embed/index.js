@@ -4,12 +4,12 @@ const main = async () => {
     const config = {
         historyDbPath: "",
         llm: {
-            provider: "ollama",
+            provider: "openai",
             config: {
-                model: "llama3.1",
+                apiKey: process.env.OPENAI_API_KEY,
             },
         },
-        collectionName: "demo_collection-ollama",
+        collectionName: "demo_collection",
         vectorStore: {
             provider: "qdrant",
             config: {
@@ -26,11 +26,9 @@ const main = async () => {
 
     const m = new Memory(config);
     await m.initialize();
-    await m.add("my name is Jamie, I am a fullstack engineer");
+    const data = await m.embeddingModel.embed("hihi");
 
-    const searchResult = await m.search("name");
-
-    console.log(searchResult);
+    console.log(data);
 };
 
 main();
