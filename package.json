@@ -1,6 +1,6 @@
 {
     "name": "mem0-ts",
-    "version": "0.1.1",
+    "version": "0.1.2g",
     "description": "The memory layer for Personalized AI in Typescript",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
