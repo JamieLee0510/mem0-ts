@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { v4 as uuidv4 } from "uuid";
 
-import { OpenAIEmbedding } from "./embeddings/openai";
-import OpenAILLM from "./llms/openai";
 import { generateMemoryDeducationPrompt } from "./llms/prompt";
 import { SQLiteManager, HistoryRecord } from "./storage/sqlite";
 import { EmbeddingFactory, LLMFactory } from "./utils/factory";
@@ -15,7 +13,6 @@ import {
 } from "./utils/tools";
 import { generateCurrDate } from "./utils/helpter";
 import { defaultMemoryConfig, MemoryConfig } from "./utils/config";
-import { HuggingFaceEmbedding } from "./embeddings/huggingface";
 import { BaseEmbedding } from "./embeddings/base-embedding-model";
 import { BaseLLM } from "./llms/base-llm";
 
