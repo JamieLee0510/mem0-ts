@@ -6,7 +6,7 @@ import { Message } from "./type";
 export class OllamaLLM extends BaseLLM {
     ollama: Ollama;
     model: string;
-    constructor(model: string = "llama3.1") {
+    constructor(model: string = "llama3.1:70b") {
         super();
         this.ollama = nodeOllama; // TODO: browser ollama
         this.model = model;
